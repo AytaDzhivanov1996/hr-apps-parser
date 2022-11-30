@@ -6,6 +6,7 @@ reader = csv.DictReader(csv_file)
 
 
 def select_sorted(**kwargs):
+    cache = []
     if 'sort_columns' in list(kwargs.keys()) and kwargs['order'] == 'desc':
         sorted_list = sorted(reader, key=lambda row: row[kwargs['sort_columns']], reverse=False)
     if 'sort_columns' in list(kwargs.keys()) and kwargs['order'] == 'asc':
@@ -13,13 +14,27 @@ def select_sorted(**kwargs):
     if 'limit' in list(kwargs.keys()):
         limited_sorted_list = list(islice(sorted_list, 0, kwargs['limit']))
     if 'filename' in list(kwargs.keys()):
-        f = open('../dump.csv', 'w')
-        f.write(str(limited_sorted_list))
-        f.close()
-        return limited_sorted_list
+        f = open(f'../{kwargs["filename"]}', 'w')
+        if limited_sorted_list in cache:
+            return limited_sorted_list
+        else:
+            cache.append(limited_sorted_list)
+            f.write(str(limited_sorted_list))
+            f.close()
+            return limited_sorted_list
+    return sorted_list
 
 
-data = select_sorted(sort_columns='high', order='asc', limit=10, filename='dump.csv')
-for i in data:
-    print(i)
+data = select_sorted(sort_columns='high', order='asc')
+
+
+def get_by_date(**kwargs):
+    for d in data:
+        if kwargs['date'] == d['date'] and kwargs['name'] == d['Name']:
+            f = open(f'../{kwargs["filename"]}', 'w')
+            f.write(str(d))
+            f.close()
+            return d
+
+
 csv_file.close()
