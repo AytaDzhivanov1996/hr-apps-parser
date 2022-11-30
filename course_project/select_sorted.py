@@ -34,5 +34,5 @@ def get_by_date(**kwargs):
             f.close()
             return d
 
-cd 
+        
 csv_file.close()
