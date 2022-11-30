@@ -25,10 +25,8 @@ def select_sorted(**kwargs):
     return sorted_list
 
 
-data = select_sorted(sort_columns='high', order='asc')
-
-
 def get_by_date(**kwargs):
+    data = select_sorted(sort_columns='high', order='asc')
     for d in data:
         if kwargs['date'] == d['date'] and kwargs['name'] == d['Name']:
             f = open(f'../{kwargs["filename"]}', 'w')
@@ -36,5 +34,5 @@ def get_by_date(**kwargs):
             f.close()
             return d
 
-
+cd 
 csv_file.close()
