@@ -33,23 +33,21 @@ def select_sorted(**kwargs):
 
         _quick_sort(array, 0, len(array) - 1)
         return array
-
-    if 'sort_columns' in list(kwargs.keys()) and kwargs['order'] == 'asc':
-        sorted_list = quick_sort(lst)
-    if 'sort_columns' in list(kwargs.keys()) and kwargs['order'] == 'desc':
-        sorted_list = quick_sort(lst)
-        sorted_list.reverse()
-    if 'limit' in list(kwargs.keys()) and 'filename' in list(kwargs.keys()):
-        limited_sorted_list = list(islice(sorted_list, 0, kwargs['limit']))
-        f = open(f'../{kwargs["filename"]}', 'w')
-        if limited_sorted_list in cache:
-            return limited_sorted_list
-        else:
+    if len(cache) == 0:
+        if 'sort_columns' in list(kwargs.keys()) and kwargs['order'] == 'asc':
+            sorted_list = quick_sort(lst)
+        if 'sort_columns' in list(kwargs.keys()) and kwargs['order'] == 'desc':
+            sorted_list = quick_sort(lst)
+            sorted_list.reverse()
+        if 'limit' in list(kwargs.keys()) and 'filename' in list(kwargs.keys()):
+            limited_sorted_list = list(islice(sorted_list, 0, kwargs['limit']))
             cache.append(limited_sorted_list)
+            f = open(f'../{kwargs["filename"]}', 'w')
             f.write(str(limited_sorted_list))
             f.close()
             return limited_sorted_list
-    return sorted_list
+    else:
+        return cache
 
 
 def get_by_date(**kwargs):
