@@ -61,7 +61,7 @@ def get_by_date(**kwargs):
     data = select_sorted(sort_columns=['date'], order='asc')
     named_data = []
     for el in data:
-        if el['Name'] == kwargs['name']:
+        if el['date'] == kwargs['date']:
             named_data.append(el)
 
     def binary_search(array, element, start, end):
@@ -76,8 +76,14 @@ def get_by_date(**kwargs):
         else:
             return binary_search(array, element, mid + 1, end)
 
-    data_found = binary_search(named_data, kwargs['date'], 0, len(named_data) - 1)
-    f = open(f'../{kwargs["filename"]}', 'w')
-    f.write(str(data_found))
-    f.close()
-    return data_found
+    if kwargs['name'] != '':
+        data_found = binary_search(named_data, kwargs['date'], 0, len(named_data) - 1)
+        f = open(f'../{kwargs["filename"]}', 'w')
+        f.write(str(data_found))
+        f.close()
+        return data_found
+    else:
+        f = open(f'../{kwargs["filename"]}', 'w')
+        f.write(str(named_data))
+        f.close()
+        return named_data
