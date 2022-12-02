@@ -1,7 +1,7 @@
 import pandas as pd
 from itertools import islice
 
-df = pd.read_csv('../all_stocks_5yr.csv')
+df = pd.read_csv('all_stocks_5yr.csv')
 df['date'] = pd.to_datetime(df['date']).dt.strftime('%Y-%m-%d')
 df.fillna(0, inplace=True)
 lst = df.to_dict('records')
@@ -48,7 +48,7 @@ def select_sorted(**kwargs):
         if 'limit' in list(kwargs.keys()) and 'filename' in list(kwargs.keys()):
             limited_sorted_list = list(islice(sorted_list, 0, kwargs['limit']))
             cache.append(limited_sorted_list)
-            f = open(f'../results/{kwargs["filename"]}', 'w')
+            f = open(f'results/{kwargs["filename"]}', 'w')
             f.write(str(limited_sorted_list))
             f.close()
             return limited_sorted_list
@@ -76,10 +76,14 @@ def get_by_date(**kwargs):
             return binary_search(array, element, start, mid - 1)
         else:
             return binary_search(array, element, mid + 1, end)
-
+    if kwargs['date'] == '':
+        f = open(f'results/{kwargs["filename"]}', 'w')
+        f.write(str(named_data))
+        f.close()
+        return named_data
     if kwargs['name'] != '':
         data_found = binary_search(named_data, kwargs['date'], 0, len(named_data))
-        f = open(f'../results/{kwargs["filename"]}', 'w')
+        f = open(f'results/{kwargs["filename"]}', 'w')
         f.write(str(data_found))
         f.close()
         return data_found
@@ -88,7 +92,7 @@ def get_by_date(**kwargs):
         for elem in data:
             if elem['date'] == kwargs['date']:
                 one_day_data.append(elem)
-        f = open(f'../results/{kwargs["filename"]}', 'w')
+        f = open(f'results/{kwargs["filename"]}', 'w')
         f.write(str(named_data))
         f.close()
         return one_day_data
