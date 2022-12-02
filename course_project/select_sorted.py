@@ -1,31 +1,35 @@
-import csv
+import pandas as pd
 from itertools import islice
 
-csv_file = open('../all_stocks_5yr.csv')
-reader = csv.DictReader(csv_file)
-lst = list(reader)
+df = pd.read_csv('../all_stocks_5yr.csv')
+df['date'] = pd.to_datetime(df['date']).dt.strftime('%Y-%m-%d')
+df.fillna(0, inplace=True)
+lst = df.to_dict('records')
+cache = []
 
 
 def select_sorted(**kwargs):
     """функция для сортировки (задается пользователем)"""
-    cache = []
     x = kwargs['sort_columns'][0]
 
     def partition(array, low, high):
         """функция для разделения массива"""
-        pivot = array[high][x]
-        i = low - 1
-        for j in range(low, high):
-            if array[j][x] <= pivot:
-                i = i + 1
-                (array[i], array[j]) = (array[j], array[i])
-        (array[i + 1], array[high]) = (array[high], array[i + 1])
-        return i + 1
+        pivot_index = low
+        pivot = array[pivot_index][x]
+        while low < high:
+            while low < len(array) and array[low][x] <= pivot:
+                low += 1
+            while array[high][x] > pivot:
+                high -= 1
+            if low < high:
+                array[low], array[high] = array[high], array[low]
+        array[high], array[pivot_index] = array[pivot_index], array[high]
+        return high
 
     def quick_sort(array):
-        """функция быстрой сортировки"""
+        """Функция быстрой сортировки"""
         def _quick_sort(objects, low, high):
-            """функция с рекурсией"""
+            """Внутренняя функция, вызываемая рекурсивно"""
             if low < high:
                 pi = partition(objects, low, high)
                 _quick_sort(objects, low, pi - 1)
@@ -33,6 +37,7 @@ def select_sorted(**kwargs):
 
         _quick_sort(array, 0, len(array) - 1)
         return array
+
     if len(cache) == 0:
         if 'sort_columns' in list(kwargs.keys()) and kwargs['order'] == 'asc':
             sorted_list = quick_sort(lst)
@@ -48,14 +53,31 @@ def select_sorted(**kwargs):
             return limited_sorted_list
     else:
         return cache
+    return sorted_list
 
 
 def get_by_date(**kwargs):
-    """функция для поиска по дате и названию компании"""
-    srt_lst = select_sorted(sort_columns=['high'], order='asc')
-    for d in srt_lst:
-        if kwargs['date'] == d['date'] and kwargs['name'] == d['Name']:
-            f = open(f'../{kwargs["filename"]}', 'w')
-            f.write(str(d))
-            f.close()
-            return d
+    """Функция поиска по дате и названию компании"""
+    data = select_sorted(sort_columns=['date'], order='asc')
+    named_data = []
+    for el in data:
+        if el['Name'] == kwargs['name']:
+            named_data.append(el)
+
+    def binary_search(array, element, start, end):
+        """Функция бинарного поиска"""
+        if start > end:
+            return array[-1]
+        mid = (start + end) // 2
+        if element == array[mid]['date']:
+            return array[mid]
+        if element < array[mid]['date']:
+            return binary_search(array, element, start, mid - 1)
+        else:
+            return binary_search(array, element, mid + 1, end)
+
+    data_found = binary_search(named_data, kwargs['date'], 0, len(named_data) - 1)
+    f = open(f'../{kwargs["filename"]}', 'w')
+    f.write(str(data_found))
+    f.close()
+    return data_found
