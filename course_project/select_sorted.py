@@ -28,6 +28,7 @@ def select_sorted(**kwargs):
 
     def quick_sort(array):
         """Функция быстрой сортировки"""
+
         def _quick_sort(objects, low, high):
             """Внутренняя функция, вызываемая рекурсивно"""
             if low < high:
@@ -47,7 +48,7 @@ def select_sorted(**kwargs):
         if 'limit' in list(kwargs.keys()) and 'filename' in list(kwargs.keys()):
             limited_sorted_list = list(islice(sorted_list, 0, kwargs['limit']))
             cache.append(limited_sorted_list)
-            f = open(f'results/{kwargs["filename"]}', 'w')
+            f = open(f'../results/{kwargs["filename"]}', 'w')
             f.write(str(limited_sorted_list))
             f.close()
             return limited_sorted_list
@@ -61,7 +62,7 @@ def get_by_date(**kwargs):
     data = select_sorted(sort_columns=['date'], order='asc')
     named_data = []
     for el in data:
-        if el['date'] == kwargs['date']:
+        if el['Name'] == kwargs['name']:
             named_data.append(el)
 
     def binary_search(array, element, start, end):
@@ -77,13 +78,17 @@ def get_by_date(**kwargs):
             return binary_search(array, element, mid + 1, end)
 
     if kwargs['name'] != '':
-        data_found = binary_search(named_data, kwargs['date'], 0, len(named_data) - 1)
-        f = open(f'results/{kwargs["filename"]}', 'w')
+        data_found = binary_search(named_data, kwargs['date'], 0, len(named_data))
+        f = open(f'../results/{kwargs["filename"]}', 'w')
         f.write(str(data_found))
         f.close()
         return data_found
     else:
-        f = open(f'results/{kwargs["filename"]}', 'w')
+        one_day_data = []
+        for elem in data:
+            if elem['date'] == kwargs['date']:
+                one_day_data.append(elem)
+        f = open(f'../results/{kwargs["filename"]}', 'w')
         f.write(str(named_data))
         f.close()
-        return named_data
+        return one_day_data
