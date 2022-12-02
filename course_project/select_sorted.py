@@ -1,16 +1,17 @@
 import pandas as pd
 from itertools import islice
+from functools import lru_cache
 
 df = pd.read_csv('all_stocks_5yr.csv')
 df['date'] = pd.to_datetime(df['date']).dt.strftime('%Y-%m-%d')
 df.fillna(0, inplace=True)
 lst = df.to_dict('records')
-cache = []
 
 
+@lru_cache(maxsize=10)
 def select_sorted(**kwargs):
     """функция для сортировки (задается пользователем)"""
-    x = kwargs['sort_columns'][0]
+    x = kwargs['sort_columns']
 
     def partition(array, low, high):
         """функция для разделения массива"""
@@ -39,27 +40,24 @@ def select_sorted(**kwargs):
         _quick_sort(array, 0, len(array) - 1)
         return array
 
-    if len(cache) == 0:
-        if 'sort_columns' in list(kwargs.keys()) and kwargs['order'] == 'asc':
-            sorted_list = quick_sort(lst)
-        if 'sort_columns' in list(kwargs.keys()) and kwargs['order'] == 'desc':
-            sorted_list = quick_sort(lst)
-            sorted_list.reverse()
-        if 'limit' in list(kwargs.keys()) and 'filename' in list(kwargs.keys()):
-            limited_sorted_list = list(islice(sorted_list, 0, kwargs['limit']))
-            cache.append(limited_sorted_list)
-            f = open(f'results/{kwargs["filename"]}', 'w')
-            f.write(str(limited_sorted_list))
-            f.close()
-            return limited_sorted_list
-    else:
-        return cache
+    if 'sort_columns' in list(kwargs.keys()) and kwargs['order'] == 'asc':
+        sorted_list = quick_sort(lst)
+    if 'sort_columns' in list(kwargs.keys()) and kwargs['order'] == 'desc':
+        sorted_list = quick_sort(lst)
+        sorted_list.reverse()
+    if 'limit' in list(kwargs.keys()) and 'filename' in list(kwargs.keys()):
+        limited_sorted_list = list(islice(sorted_list, 0, kwargs['limit']))
+        f = open(f'results/{kwargs["filename"]}', 'w')
+        f.write(str(limited_sorted_list))
+        f.close()
+        return limited_sorted_list
     return sorted_list
 
 
+@lru_cache(maxsize=10)
 def get_by_date(**kwargs):
     """Функция поиска по дате и названию компании"""
-    data = select_sorted(sort_columns=['date'], order='asc')
+    data = select_sorted(sort_columns='date', order='asc')
     named_data = []
     for el in data:
         if el['Name'] == kwargs['name']:
@@ -76,6 +74,7 @@ def get_by_date(**kwargs):
             return binary_search(array, element, start, mid - 1)
         else:
             return binary_search(array, element, mid + 1, end)
+
     if kwargs['date'] == '':
         f = open(f'results/{kwargs["filename"]}', 'w')
         f.write(str(named_data))
