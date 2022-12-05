@@ -11,7 +11,10 @@ lst = df.to_dict('records')
 @lru_cache(maxsize=10)
 def select_sorted(**kwargs):
     """функция для сортировки (задается пользователем)"""
-    x = kwargs['sort_columns']
+    if kwargs['sort_columns'] == '':
+        x = 'high'
+    else:
+        x = kwargs['sort_columns']
 
     def partition(array, low, high):
         """функция для разделения массива"""
@@ -42,14 +45,19 @@ def select_sorted(**kwargs):
 
     if 'sort_columns' in list(kwargs.keys()) and kwargs['order'] == 'asc':
         sorted_list = quick_sort(lst)
-    if 'sort_columns' in list(kwargs.keys()) and kwargs['order'] == 'desc':
+    if 'sort_columns' in list(kwargs.keys()) and kwargs['order'] == 'desc' or kwargs['order'] == '':
         sorted_list = quick_sort(lst)
         sorted_list.reverse()
     if 'limit' in list(kwargs.keys()) and 'filename' in list(kwargs.keys()):
         limited_sorted_list = list(islice(sorted_list, 0, kwargs['limit']))
-        f = open(f'results/{kwargs["filename"]}', 'w')
-        f.write(str(limited_sorted_list))
-        f.close()
+        if kwargs['filename'] == '':
+            f = open(f'results/dump.csv', 'w')
+            f.write(str(limited_sorted_list))
+            f.close()
+        else:
+            f = open(f'results/{kwargs["filename"]}', 'w')
+            f.write(str(limited_sorted_list))
+            f.close()
         return limited_sorted_list
     return sorted_list
 
