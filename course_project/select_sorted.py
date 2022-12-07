@@ -11,10 +11,7 @@ lst = df.to_dict('records')
 @lru_cache(maxsize=10)
 def select_sorted(**kwargs):
     """функция для сортировки (задается пользователем)"""
-    if kwargs['sort_columns'] == '':
-        x = 'high'
-    else:
-        x = kwargs['sort_columns']
+    x = kwargs['sort_columns']
 
     def partition(array, low, high):
         """функция для разделения массива"""
@@ -45,7 +42,7 @@ def select_sorted(**kwargs):
 
     if 'sort_columns' in list(kwargs.keys()) and kwargs['order'] == 'asc':
         sorted_list = quick_sort(lst)
-    if 'sort_columns' in list(kwargs.keys()) and kwargs['order'] == 'desc' or kwargs['order'] == '':
+    if 'sort_columns' in list(kwargs.keys()) and kwargs['order'] == 'desc':
         sorted_list = quick_sort(lst)
         sorted_list.reverse()
     if 'limit' in list(kwargs.keys()) and 'filename' in list(kwargs.keys()):

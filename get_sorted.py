@@ -6,8 +6,8 @@ def main():
     user_input_2 = input("Порядок по убыванию (desc) возрастанию [asc]:\n")
     user_input_3 = input("Ограничение выборки [10]:\n")
     user_input_4 = input("Название файла для сохранения результата [dump.csv]:\n")
-    command_dict_1 = {'1': 'open', '2': 'close', '3': 'high', '4': 'low', '5': 'volume'}
-    command_dict_2 = {'1': 'desc', '2': 'asc'}
+    command_dict_1 = {'1': 'open', '2': 'close', '3': 'high', '4': 'low', '5': 'volume', '': 'high'}
+    command_dict_2 = {'1': 'desc', '2': 'asc', '': 'asc'}
     if user_input_3 == '':
         sorted_list = select_sorted(sort_columns=command_dict_1[user_input], order=command_dict_2[user_input_2], limit=10, filename=user_input_4)
     else:
